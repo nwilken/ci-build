@@ -11,6 +11,7 @@ ENV HASHICORP_RELEASES=https://releases.hashicorp.com
 RUN addgroup -g 513 docker && \
     apk add --no-cache bash ca-certificates curl gnupg libcap openssl git make docker py-pip jq && \
     pip install docker-compose && \
+    pip install python-gilt && \
     gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
