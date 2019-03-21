@@ -41,21 +41,15 @@ RUN addgroup -g 513 docker && \
     chmod +x /bin/notary && \
     apk del gnupg openssl && \
     rm -rf /root/.gnupg && \
-    addgroup -g 1000 dev && \
-    adduser -D -h /home/dev -s /bin/bash -u 1000 -G dev dev && \
-    addgroup dev docker && \
-    chmod 755 /home/dev && \
-    adduser -D -h /home/jenkins -s /bin/bash -u 1001 -G dev jenkins && \
-    chmod 755 /home/jenkins
-
-RUN mkdir -p /home/jenkins/.ssh && \
+    addgroup -g 1000 jenkins && \
+    adduser -D -h /home/jenkins -s /bin/bash -u 1000 -G jenkins jenkins && \
+    chmod 755 /home/jenkins && \
+    mkdir -p /home/jenkins/.ssh && \
     echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> /home/jenkins/.ssh/config && \
-    chmod 0600 /home/jenkins/.ssh/config && chown -R jenkins:dev /home/jenkins/.ssh
+    chmod 0600 /home/jenkins/.ssh/config && chown -R jenkins:jenkins /home/jenkins/.ssh
 
 VOLUME /usr/src/app
 
 WORKDIR /usr/src/app
-
-USER dev
 
 CMD ["/bin/bash"]
