@@ -10,7 +10,7 @@ ENV HASHICORP_RELEASES=https://releases.hashicorp.com
 
 RUN addgroup -g 513 docker && \
     apk update && \
-    apk add --no-cache bash ca-certificates curl gnupg libcap openssl git openssh make gcc docker py-pip jq gettext && \
+    apk add --no-cache bash ca-certificates curl gnupg libcap openssl git openssh make gcc musl-dev python-dev docker py-pip jq gettext && \
     pip install --upgrade pip && \
     pip install --no-cache-dir docker-compose && \
     pip install --no-cache-dir python-gilt && \
