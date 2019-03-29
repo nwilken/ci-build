@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.8
 MAINTAINER Nate Wilken <wilken@asu.edu>
 
 ENV DOCKER_BASE_VERSION=0.0.4
@@ -9,7 +9,8 @@ ENV NOTARY_VERSION=0.6.1
 ENV HASHICORP_RELEASES=https://releases.hashicorp.com
 
 RUN addgroup -g 513 docker && \
-    apk add --no-cache bash ca-certificates curl gnupg libcap openssl git openssh make gcc docker py-pip jq gettext && \
+    apk update && \
+    apk add --no-cache bash ca-certificates curl gnupg libcap openssl git openssh make docker py-pip jq gettext && \
     pip install docker-compose && \
     pip install python-gilt && \
     gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
