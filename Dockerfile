@@ -41,7 +41,7 @@ RUN addgroup -g 513 docker && \
     wget https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 && \
     mv notary-Linux-amd64 /bin/notary && \
     chmod +x /bin/notary && \
-    apk del gnupg openssl && \
+    apk del gnupg openssl gcc musl-dev libffi-dev openssl-dev python-dev && \
     rm -rf /root/.gnupg && \
     addgroup -g 1000 jenkins && \
     adduser -D -h /home/jenkins -s /bin/bash -u 1000 -G jenkins jenkins && \
