@@ -13,7 +13,7 @@ RUN addgroup -g 513 docker && \
     apk update && \
     apk add --no-cache bash ca-certificates curl gnupg libcap openssl git openssh make gcc musl-dev libffi-dev openssl-dev python-dev docker py-pip jq gettext && \
     curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
-    chmod +x /usr/local/bin/kubectl \
+    chmod +x /usr/local/bin/kubectl && \
     pip install --upgrade pip && \
     pip install --no-cache-dir docker-compose && \
     pip install --no-cache-dir python-gilt && \
