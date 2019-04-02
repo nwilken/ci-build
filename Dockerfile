@@ -6,6 +6,7 @@ ENV CONSUL_VERSION=1.4.0
 ENV VAULT_VERSION=1.0.2
 ENV NOTARY_VERSION=0.6.1
 ENV KUBE_VERSION=v1.14.0
+ENV HELM_VERSION=v2.13.1
 
 ENV HASHICORP_RELEASES=https://releases.hashicorp.com
 
@@ -14,6 +15,14 @@ RUN addgroup -g 513 docker && \
     apk add --no-cache bash ca-certificates curl gnupg libcap openssl git openssh make gcc musl-dev libffi-dev openssl-dev python-dev docker py-pip jq gettext && \
     curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
+    mkdir -p /tmp/helm && \
+    cd /tmp/helm && \
+    curl -L https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+    tar -xvf helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+    mv linux-amd64/helm /usr/local/bin && \
+    chmod +x /usr/local/bin/helm && \
+    cd /tmp && \
+    rm -rf /tmp/helm && \
     pip install --upgrade pip && \
     pip install --no-cache-dir docker-compose && \
     pip install --no-cache-dir python-gilt && \
