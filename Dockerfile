@@ -46,6 +46,6 @@ RUN addgroup -g 513 docker \
  && cd /tmp \
  && rm -rf /tmp/build \
  && rm -rf /root/.gnupg \
- && apk del --no-cache .build-deps
+ && apk del --purge --no-cache .build-deps
 
 CMD ["/bin/bash"]
