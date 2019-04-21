@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 MAINTAINER Nate Wilken <wilken@asu.edu>
 
 ENV DOCKER_BASE_VERSION=0.0.4
