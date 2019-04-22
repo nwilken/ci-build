@@ -20,7 +20,7 @@ RUN addgroup -g 513 docker
 
 WORKDIR /tmp
 RUN apk update \
- && apk add --no-cache bash ca-certificates openssl curl git make docker jq \
+ && apk add --no-cache bash ca-certificates openssl curl git openssh make docker jq \
  && apk add --no-cache --virtual .build-deps gnupg gcc musl-dev libffi-dev openssl-dev python-dev py-pip \
  && pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir docker-compose \
