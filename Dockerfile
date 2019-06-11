@@ -20,9 +20,10 @@ RUN addgroup -g 513 docker
 
 WORKDIR /tmp
 RUN apk update \
- && apk add --no-cache bash ca-certificates openssl curl git openssh make docker jq \
+ && apk add --no-cache bash less curl git openssh make docker jq python groff \
  && apk add --no-cache --virtual .build-deps gnupg gcc musl-dev libffi-dev openssl-dev python-dev py-pip \
  && pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir awscli s3cmd \
  && pip install --no-cache-dir docker-compose \
  && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C \
  && wget ${HASHICORP_RELEASES}/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip \
