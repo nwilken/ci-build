@@ -20,8 +20,8 @@ RUN addgroup -g 513 docker
 
 WORKDIR /tmp
 RUN apk update \
- && apk add --no-cache bash less curl git openssh make docker jq python groff gettext \
- && apk add --no-cache --virtual .build-deps gnupg gcc musl-dev libffi-dev openssl-dev python-dev py-pip \
+ && apk add --no-cache bash less curl git openssh make docker jq python groff gettext py-pip \
+ && apk add --no-cache --virtual .build-deps gnupg gcc musl-dev libffi-dev openssl-dev python-dev \
  && pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir python-gilt \
  && pip install --no-cache-dir awscli s3cmd \
