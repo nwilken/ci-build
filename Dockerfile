@@ -1,56 +1,54 @@
-FROM alpine:3.9
-MAINTAINER Nate Wilken <wilken@asu.edu>
+FROM amazonlinux:2 AS base
 
-ENV DOCKER_BASE_VERSION=0.0.4
-ENV CONSUL_VERSION=1.4.0
-ENV VAULT_VERSION=1.1.2
+RUN set -x && \
+    yum update -y && \
+    yum clean all -y && \
+    rm -rf /var/cache/yum /var/log/yum.log
 
-ENV HASHICORP_RELEASES=https://releases.hashicorp.com
+FROM asuuto/hashicorp-installer:latest AS installer
 
-WORKDIR /home/jenkins
-RUN addgroup -g 1000 jenkins \
- && adduser -D -h /home/jenkins -s /bin/bash -u 1000 -G jenkins jenkins \
- && chmod 755 . \
- && mkdir -p .ssh \
- && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> .ssh/config \
- && chmod 0600 .ssh/config \
- && chown -R jenkins:jenkins .
+RUN /install-hashicorp-tool "docker-base" "0.0.4"
+RUN /install-hashicorp-tool "consul" "1.4.0"
+RUN /install-hashicorp-tool "vault" "1.1.2"
 
-RUN addgroup -g 513 docker
+FROM base AS build
 
-WORKDIR /tmp
-RUN apk update \
- && apk add --no-cache bash less curl git openssh make docker jq python groff gettext py-pip \
- && apk add --no-cache --virtual .build-deps gnupg gcc musl-dev libffi-dev openssl-dev python-dev \
- && pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir python-gilt \
- && pip install --no-cache-dir awscli s3cmd \
- && pip install --no-cache-dir docker-compose \
- && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C \
- && wget ${HASHICORP_RELEASES}/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip \
- && wget ${HASHICORP_RELEASES}/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS \
- && wget ${HASHICORP_RELEASES}/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig \
- && gpg --batch --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS \
- && set -o pipefail && grep docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c \
- && unzip -d /bin -j docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip bin/gosu bin/dumb-init \
- && rm docker-base_* \
- && wget ${HASHICORP_RELEASES}/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip \
- && wget ${HASHICORP_RELEASES}/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS \
- && wget ${HASHICORP_RELEASES}/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig \
- && gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS \
- && set -o pipefail && grep consul_${CONSUL_VERSION}_linux_amd64.zip consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c \
- && unzip -d /bin consul_${CONSUL_VERSION}_linux_amd64.zip \
- && rm consul_* \
- && wget ${HASHICORP_RELEASES}/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip \
- && wget ${HASHICORP_RELEASES}/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS \
- && wget ${HASHICORP_RELEASES}/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_SHA256SUMS.sig \
- && gpg --batch --verify vault_${VAULT_VERSION}_SHA256SUMS.sig vault_${VAULT_VERSION}_SHA256SUMS \
- && set -o pipefail && grep vault_${VAULT_VERSION}_linux_amd64.zip vault_${VAULT_VERSION}_SHA256SUMS | sha256sum -c \
- && unzip -d /bin vault_${VAULT_VERSION}_linux_amd64.zip \
- && rm vault_* \
- && rm -rf /root/.gnupg \
- && rm -rf /root/.cache \
- && apk del --purge --no-cache .build-deps
+RUN set -x && \
+    curl -sSL "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose && \
+    chmod +x docker-compose
+
+FROM base AS final
+LABEL maintainer="Nate Wilken <wilken@asu.edu>"
+
+RUN set -x && \
+    curl -sSL https://download.docker.com/linux/centos/docker-ce.repo -o /etc/yum.repos.d/docker-ce.repo && \
+    curl -sSL https://download.docker.com/linux/centos/gpg -o /etc/pki/rpm-gpg/docker-gpg && \
+    yum install -y shadow-utils git docker-ce-cli jq gettext python-pip && \
+    yum clean all -y && \
+    rm -rf /var/cache/yum /var/log/yum.log && \
+    pip install --upgrade pip && \
+    pip install awscli s3cmd python-gilt && \
+    rm -rf /root/.cache/pip
+
+ARG USERID=1000
+ARG GROUPID=1000
+ARG USER=jenkins
+ARG GROUP=jenkins
+
+WORKDIR /home/${USER}
+RUN set -x && \
+    groupadd -g ${GROUPID} ${GROUP} && \
+    useradd -M -N -s /bin/bash -u ${USERID} -g ${GROUPID} ${USER} && \
+    chmod 755 . && \
+    mkdir -p .ssh && \
+    echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> .ssh/config && \
+    chmod 0600 .ssh/config && \
+    chown -R ${USER}:${GROUP} .
+
+COPY --from=installer /software/docker-base/bin /bin
+COPY --from=installer /software/consul /bin
+COPY --from=installer /software/vault /bin
+COPY --from=build /docker-compose /usr/local/bin
 
 WORKDIR /
 CMD ["/bin/bash"]
