@@ -37,7 +37,7 @@ RUN set -x && \
     yum clean all -y && \
     rm -rf /var/cache/yum /var/log/yum.log && \
     pip install --upgrade pip && \
-    pip install awscli s3cmd python-gilt && \
+    pip install awscli s3cmd python-gilt j2cli && \
     rm -rf /root/.cache/pip
 
 WORKDIR /home/${USER}
