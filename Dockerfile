@@ -33,7 +33,7 @@ RUN set -x && \
     yum remove -y shadow-utils && \
     curl -sSL https://download.docker.com/linux/centos/docker-ce.repo -o /etc/yum.repos.d/docker-ce.repo && \
     curl -sSL https://download.docker.com/linux/centos/gpg -o /etc/pki/rpm-gpg/docker-gpg && \
-    yum install -y git tar docker-ce-cli python-pip jq gettext && \
+    yum install -y git tar zip docker-ce-cli python-pip jq gettext && \
     yum clean all -y && \
     rm -rf /var/cache/yum /var/log/yum.log && \
     pip install --upgrade pip && \
