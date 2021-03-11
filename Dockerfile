@@ -8,14 +8,17 @@ RUN set -x && \
 FROM asuuto/hashicorp-installer:latest AS installer
 
 RUN /install-hashicorp-tool "docker-base" "0.0.4"
-RUN /install-hashicorp-tool "consul" "1.4.0"
-RUN /install-hashicorp-tool "vault" "1.1.2"
+RUN /install-hashicorp-tool "consul" "1.9.4"
+RUN /install-hashicorp-tool "vault" "1.6.3"
 
 FROM base AS build
 
 RUN set -x && \
-    curl -sSL "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose && \
-    chmod +x docker-compose
+    yum install -y tar curl gzip && \
+    curl -sSL "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose && \
+    chmod +x docker-compose && \
+    curl -sSL https://download.docker.com/linux/static/stable/x86_64/docker-20.10.5.tgz -o /docker.tgz && \
+    tar xvfz /docker.tgz
 
 FROM base AS final
 LABEL maintainer="Nate Wilken <wilken@asu.edu>"
@@ -31,9 +34,7 @@ RUN set -x && \
     groupadd -g ${GROUPID} ${GROUP} && \
     useradd -M -N -s /bin/bash -u ${USERID} -g ${GROUPID} ${USER} && \
     yum remove -y shadow-utils && \
-    curl -sSL https://download.docker.com/linux/centos/docker-ce.repo -o /etc/yum.repos.d/docker-ce.repo && \
-    curl -sSL https://download.docker.com/linux/centos/gpg -o /etc/pki/rpm-gpg/docker-gpg && \
-    yum install -y git tar zip docker-ce-cli python-pip jq gettext && \
+    yum install -y git tar zip python-pip jq gettext && \
     yum clean all -y && \
     rm -rf /var/cache/yum /var/log/yum.log && \
     pip install --upgrade pip && \
@@ -52,6 +53,7 @@ COPY --from=installer /software/docker-base/bin /bin
 COPY --from=installer /software/consul /bin
 COPY --from=installer /software/vault /bin
 COPY --from=build /docker-compose /usr/local/bin
+COPY --from=build /docker /usr/local/bin
 
 WORKDIR /
 CMD ["/bin/bash"]
