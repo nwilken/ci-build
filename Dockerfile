@@ -8,8 +8,8 @@ RUN set -x && \
 FROM asuuto/hashicorp-installer:latest AS installer
 
 RUN /install-hashicorp-tool "docker-base" "0.0.4"
-RUN /install-hashicorp-tool "consul" "1.6.3"
-RUN /install-hashicorp-tool "vault" "1.1.2"
+RUN /install-hashicorp-tool "consul" "1.9.4"
+RUN /install-hashicorp-tool "vault" "1.6.3"
 
 FROM base AS build
 
