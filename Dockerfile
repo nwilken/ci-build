@@ -13,13 +13,16 @@ RUN /install-hashicorp-tool "vault" "1.12.0"
 
 FROM base AS build
 
+ARG TARGETOS
+ARG TARGETARCH
+
 RUN set -x && \
     yum install -y tar curl gzip && \
-    curl -sSL "https://github.com/docker/compose/releases/download/2.12.2/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose && \
+    curl -fsSL "https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-$TARGETOS-$(uname -m)" -o docker-compose && \
     chmod +x docker-compose && \
-    curl -sSL https://download.docker.com/linux/static/stable/x86_64/docker-20.10.18.tgz -o /docker.tgz && \
+    curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-20.10.18.tgz -o /docker.tgz && \
     tar xvfz /docker.tgz && \
-    curl -sSL "https://github.com/docker/buildx/releases/download/v0.9.1/buildx-v0.9.1.$(uname -s)-$(uname -m)" -o docker-buildx  && \
+    curl -fsSL "https://github.com/docker/buildx/releases/download/v0.9.1/buildx-v0.9.1.$TARGETOS-$TARGETARCH" -o docker-buildx  && \
     chmod +x docker-buildx
 
 FROM base AS final
