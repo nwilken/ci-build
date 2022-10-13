@@ -8,17 +8,19 @@ RUN set -x && \
 FROM asuuto/hashicorp-installer:latest AS installer
 
 RUN /install-hashicorp-tool "docker-base" "0.0.4"
-RUN /install-hashicorp-tool "consul" "1.9.4"
-RUN /install-hashicorp-tool "vault" "1.6.3"
+RUN /install-hashicorp-tool "consul" "1.11.0"
+RUN /install-hashicorp-tool "vault" "1.12.0"
 
 FROM base AS build
 
 RUN set -x && \
     yum install -y tar curl gzip && \
-    curl -sSL "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose && \
+    curl -sSL "https://github.com/docker/compose/releases/download/2.12.2/docker-compose-$(uname -s)-$(uname -m)" -o docker-compose && \
     chmod +x docker-compose && \
-    curl -sSL https://download.docker.com/linux/static/stable/x86_64/docker-20.10.5.tgz -o /docker.tgz && \
-    tar xvfz /docker.tgz
+    curl -sSL https://download.docker.com/linux/static/stable/x86_64/docker-20.10.18.tgz -o /docker.tgz && \
+    tar xvfz /docker.tgz && \
+    curl -sSL "https://github.com/docker/buildx/releases/download/v0.9.1/buildx-v0.9.1.$(uname -s)-$(uname -m)" -o docker-buildx  && \
+    chmod +x docker-buildx
 
 FROM base AS final
 LABEL maintainer="Nate Wilken <wilken@asu.edu>"
@@ -54,6 +56,7 @@ COPY --from=installer /software/consul /bin
 COPY --from=installer /software/vault /bin
 COPY --from=build /docker-compose /usr/local/bin
 COPY --from=build /docker /usr/local/bin
+COPY --from=build /docker-buildx /usr/libexec/docker/cli-plugins/docker-buildx
 
 WORKDIR /
 CMD ["/bin/bash"]
