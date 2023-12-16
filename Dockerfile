@@ -8,8 +8,8 @@ RUN set -x && \
 FROM asuuto/hashicorp-installer:latest AS installer
 
 RUN /install-hashicorp-tool "docker-base" "0.0.4"
-RUN /install-hashicorp-tool "consul" "1.11.0"
-RUN /install-hashicorp-tool "vault" "1.12.0"
+RUN /install-hashicorp-tool "consul" "1.17.1"
+RUN /install-hashicorp-tool "vault" "1.15.4"
 
 FROM base AS build
 
@@ -18,11 +18,11 @@ ARG TARGETARCH
 
 RUN set -x && \
     yum install -y tar curl gzip && \
-    curl -fsSL "https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-$TARGETOS-$(uname -m)" -o docker-compose && \
+    curl -fsSL "https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-$TARGETOS-$(uname -m)" -o docker-compose && \
     chmod +x docker-compose && \
-    curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-20.10.18.tgz -o /docker.tgz && \
+    curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz -o /docker.tgz && \
     tar xvfz /docker.tgz && \
-    curl -fsSL "https://github.com/docker/buildx/releases/download/v0.9.1/buildx-v0.9.1.$TARGETOS-$TARGETARCH" -o docker-buildx  && \
+    curl -fsSL "https://github.com/docker/buildx/releases/download/v0.12.0/buildx-v0.12.0.$TARGETOS-$TARGETARCH" -o docker-buildx  && \
     chmod +x docker-buildx
 
 FROM base AS final
